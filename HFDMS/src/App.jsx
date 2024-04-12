@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import FrontPage from './Components/FrontPage'; // Adjust the import path as necessary
@@ -17,6 +16,6 @@ function App() {
       </Routes>
     </Router>
  );
-}
+};
 
 export default App;
