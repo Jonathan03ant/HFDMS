@@ -31,13 +31,40 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-app.get('/members', async (req, res) => {
+app.get('/api/admins', async (req, res) => {
     try {
-       const result = await pool.query('SELECT * FROM Members');
+       const result = await pool.query('SELECT AdminID, FullName FROM AdministrativeStaff');
        res.json(result.rows);
+       //console.log(result.rows);
     } catch (err) {
        console.error(err);
-       res.status(500).json({ error: 'An error occurred while fetching members' });
+       res.status(500).json({ error: 'An error occurred while fetching admins' });
+    }
+   });
+
+app.post('/api/admins/authenticate', async (req, res) => {
+    const { AdminID, Pin } = req.body;
+    try {
+        const result = await pool.query('SELECT * FROM AdministrativeStaff WHERE AdminID = $1 AND Pin = $2', [AdminID, Pin]);
+        if (result.rows.length > 0) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, error: 'Invalid ID or PIN' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'An error occurred while authenticating' });
+    }
+});
+
+app.get('/members', async (req, res) => {
+    try {
+       const result = await pool.query('SELECT * FROM Trainers');
+       res.json(result.rows);
+       //console.log(result.rows);
+    } catch (err) {
+       console.error(err);
+       res.status(500).json({ error: 'An error occurred while fetching members', details: err.message });
     }
    });
 
