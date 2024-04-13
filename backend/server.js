@@ -121,6 +121,25 @@ app.post('/api/submitPayment', async (req, res) => {
     }
 });
 
+app.post('/api/members/authenticate', async (req, res) => {
+    const { username, pin } = req.body;
+    try {
+        const result = await pool.query(
+            'SELECT MemberID FROM Members WHERE Username = $1 AND PIN = $2',
+            [username, pin]
+        );
+        if (result.rows.length > 0) {
+            const memberId = result.rows[0].memberid;
+            res.status(200).json({ success: true, memberId });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid username or PIN' });
+        }
+    } catch (error) {
+        console.error('Error authenticating:', error);
+        res.status(500).json({ error: 'An error occurred while authenticating' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
