@@ -5,7 +5,7 @@ export default function AdminNavBar({ handleLogout }) {
     const navigate = useNavigate();
     const onLogout = () => {
         handleLogout();
-        navigate('/admin');
+        navigate('/');
     }
     return (
         <div className='flex flex-col justify-end mt-10 w-full mx-'>
