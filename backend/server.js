@@ -140,6 +140,18 @@ app.post('/api/members/authenticate', async (req, res) => {
     }
 });
 
+app.get('/api/availability', async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM Availability'
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching availability:', error);
+        res.status(500).json({ error: 'An error occurred while fetching availability' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
