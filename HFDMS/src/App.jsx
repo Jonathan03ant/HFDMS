@@ -8,6 +8,7 @@ import MemberLandingPage from './Components/MemberLandingPage';
 import MemberLoginPage from './Components/MemberLoginPage';
 import MemberSignUpPage from './Components/MemberSignUpPage';
 import MemberPage from './Components/MemberPage';
+import Schedule from './Components/Pages/Schedule';
 
 
 import TrainerPage from './Components/TrainerPage'; 
@@ -31,6 +32,8 @@ function App() {
         <Route path="/member-login" element={<MemberLoginPage />} />
         <Route path="/member-signup" element={<MemberSignUpPage />} />
         <Route path="/member/:memberId" element={<MemberPage />} />
+        <Route path="/member/:memberId/schedule" element={<Schedule />} />
+
 
       </Routes>
     </Router>
