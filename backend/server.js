@@ -64,16 +64,17 @@ app.post('/api/admins/authenticate', async (req, res) => {
     *MEMBER APIS
 */
 app.post('/api/signup', async (req, res) => {
-    console.log('Request body:', req.body);
     const { fullName, username, pin } = req.body;
     try {
         const result = await pool.query(
-        'INSERT INTO Members (FullName, username, pin) VALUES ($1, $2, $3)',
+        'INSERT INTO Members (FullName, username, pin) VALUES ($1, $2, $3) RETURNING MemberID',
         [fullName, username, pin]
         );
-        res.status(201).json({ message: 'Member signed up successfully' });
+        const memberId = result.rows[0].memberid;
+        //console.log(memberId);
+        res.status(201).json({ message: 'Member signed up successfully', memberId });
     } catch (error) {
-        if (error.code === '23505') { // This is the error code for unique_violation in PostgreSQL
+        if (error.code === '23505') { 
             res.status(400).json({ error: 'Username already exists' });
         } else {
             console.error('Error signing up:', error);
@@ -82,6 +83,28 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
+app.post('/api/healthmetrics-pop', async (req, res) => {
+    //console.log(req.body);
+    const { currentWeight, goalWeight, height, memberId } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO HealthMetrics (currentWeight, goalWeight, height) VALUES ($1, $2, $3) RETURNING HealthMetricsID',
+            [currentWeight, goalWeight, height]
+        );
+        const healthMetricsId = result.rows[0].healthmetricsid;
+    
+        // Update the user's profile with the HealthMetricsID
+        await pool.query(
+            'UPDATE Members SET HealthMetricsID = $1 WHERE MemberID = $2',
+            [healthMetricsId, memberId]
+        );
+    
+        res.status(201).json({ message: 'Health metrics submitted successfully', healthMetricsId });
+        } catch (error) {
+        console.error('Error submitting health metrics:', error);
+        res.status(500).json({ error: 'An error occurred while submitting health metrics' });
+        }
+});
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
