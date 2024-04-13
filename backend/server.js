@@ -100,10 +100,25 @@ app.post('/api/healthmetrics-pop', async (req, res) => {
         );
     
         res.status(201).json({ message: 'Health metrics submitted successfully', healthMetricsId });
-        } catch (error) {
-        console.error('Error submitting health metrics:', error);
-        res.status(500).json({ error: 'An error occurred while submitting health metrics' });
-        }
+    } catch (error) {
+    console.error('Error submitting health metrics:', error);
+    res.status(500).json({ error: 'An error occurred while submitting health metrics' });
+    }
+});
+
+app.post('/api/submitPayment', async (req, res) => {
+    const { memberId, amount, dueDate } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO Bills (MemberID, Amount, DueDate, PAID) VALUES ($1, $2, TO_DATE($3, \'YYYY-MM-DD\'), TRUE) RETURNING BillID',
+            [memberId, amount, dueDate]
+        );
+        const billId = result.rows[0].billid;
+        res.status(201).json({ message: 'Payment submitted successfully', billId });
+    } catch (error) {
+        console.error('Error submitting payment:', error);
+        res.status(500).json({ error: 'An error occurred while submitting payment' });
+    }
 });
 
 app.listen(port, () => {

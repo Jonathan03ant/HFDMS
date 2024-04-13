@@ -4,6 +4,8 @@ import axios from 'axios';
 
 
 export default function MemberSignUpPage() {
+
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         fullName: '',
         username: '',
@@ -16,9 +18,16 @@ export default function MemberSignUpPage() {
         height: '',
      });
 
+    const [paymentForm, setPaymentForm] = useState({
+        amount: '',
+        dueDate: '',
+    })
+
+    
     const [signupSuccess, setSignupSuccess] = useState(false);
     const [memberId, setMemberId] = useState(null);
     const [healthMetricsSubmitted, setHealthMetricsSubmitted] = useState(false);
+    const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,6 +35,10 @@ export default function MemberSignUpPage() {
 
     const handleHealthMetricsChange = (e) => {
         setHealthMetricsForm({ ...healthMetricsForm, [e.target.name]: e.target.value });
+    };
+
+    const handlePaymentChange = (e) => {
+        setPaymentForm({ ...paymentForm, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
@@ -54,7 +67,20 @@ export default function MemberSignUpPage() {
         } catch (error) {
           console.error('Error submitting health metrics:', error);
         }
-     };
+    };
+
+    const handlePaymentSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { amount, dueDate } = paymentForm;
+            const date = new Date(dueDate);
+            const response = await axios.post('http://localhost:3000/api/submitPayment', { amount, dueDate: date, memberId });
+            setPaymentSubmitted(true);  
+            navigate(`/member-${memberId}`);  
+        } catch (error) {
+            console.error('Error submitting payment:', error);
+        }
+    };
 
     return (
         <>
@@ -95,8 +121,24 @@ export default function MemberSignUpPage() {
                             </form>
                         </div>
                     ) : (
-                        <h1 className='font-mono w-72 p-2 h-10' > Health Metrics Submitted</h1>
-                    )    
+                        !paymentSubmitted ? (
+                            <form 
+                                className='flex flex-col space-y-2'
+                                onSubmit={handlePaymentSubmit}
+                            >
+                                <input className='w-72 p-2 h-10' type="text" name="amount" placeholder="Amount" onChange={handlePaymentChange} required />
+                                <input className='w-72 p-2 h-10' type="text" name="dueDate" placeholder="Due Date" onChange={handlePaymentChange} required />
+                                <button 
+                                    className='bg-blue-200 w-54 hover:bg-gray-200 text-black py-2 px-4 rounded '
+                                    type="submit"
+                                >
+                                    Submit Payment
+                                </button>
+                            </form>
+                        ) : (
+                            <h1 className='font-mono w-72 p-2 h-10'>PAYMENT SUBMITTED</h1>
+                        )
+                    )
                 )}
             </div>
         </>
