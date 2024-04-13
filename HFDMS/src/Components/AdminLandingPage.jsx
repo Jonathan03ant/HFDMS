@@ -31,7 +31,7 @@ export default function AdminPage() {
         try {
             const response = await axios.post('http://localhost:3000/api/admins/authenticate', { AdminID: selectAdmins, Pin: pin });
             if (response.data.success) {
-                navigate('/member-login');
+                navigate('/admin-home');
             } else {
                 alert('Invalid ID or PIN');
             }
@@ -58,7 +58,7 @@ export default function AdminPage() {
                                 </option>
                             ))}
                         </select>
-                        <input type="password" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Enter PIN" />
+                        <input className='px-4 mx-2' type="password" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="Enter PIN" />
                         <button type="submit" className='bg-blue-200 w-32 hover:bg-gray-200 text-black py-2 px-4 rounded'>SIGNIN</button>
                     </form>
                 </div>
