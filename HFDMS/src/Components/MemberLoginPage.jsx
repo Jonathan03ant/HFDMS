@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-export default function MemberPage() {
+export default function MemberLoginPage() {
     return (
         <>
-            <h1> Member Page </h1>
+            <h1> Member Login Page </h1>
         </>
     )
 }
