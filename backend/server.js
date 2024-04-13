@@ -152,6 +152,57 @@ app.get('/api/availability', async (req, res) => {
     }
 });
 
+app.post('/api/schedule', async (req, res) => {
+    //console.log(req.body);
+    const { availabilityId, memberId, trainerId } = req.body;
+    try {
+        // Begin a transaction
+        await pool.query('BEGIN');
+
+        // Update the availability
+        await pool.query(
+            'UPDATE Availability SET available = false WHERE availabilityid = $1',
+            [availabilityId]
+        );
+
+        // Insert a new schedule
+        await pool.query(
+            'INSERT INTO Schedules (MemberID, TrainerID, ScheduleStatus) VALUES ($1, $2, $3)',
+            [memberId, trainerId, 'Scheduled']
+        );
+
+        // Commit the transaction
+        await pool.query('COMMIT');
+
+        res.status(200).json({ message: 'Schedule created successfully' });
+    } catch (error) {
+        // Rollback the transaction in case of error
+        await pool.query('ROLLBACK');
+        console.error('Error scheduling:', error);
+        res.status(500).json({ error: 'An error occurred while scheduling' });
+    }
+})
+
+app.get('/api/schedules/:memberId', async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        if (!memberId) {
+            return res.status(400).json({ error: 'No memberId provided' });
+        }
+        const result = await pool.query(
+            'SELECT * FROM Schedules WHERE memberId = $1', [memberId]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No schedules found for this member' });
+        }
+        //console.log(result.rows);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(`Error fetching schedules for member ${memberId}:`, error);
+        res.status(500).json({ error: 'An error occurred while fetching schedules' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

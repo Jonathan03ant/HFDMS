@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import MemberNavBar from '../NavBar/MemberNavBar';
 
 
 export default function Schedule() {
+    const {memberId} = useParams();
     const [schedules, setSchedules] = useState([]);
 
+
+    const fetchSchedules = async () => {
+        const response = await axios.get('http://localhost:3000/api/availability');
+        //console.log(response.data); 
+        setSchedules(response.data);
+    };
+
     useEffect(() => {
-        const fetchSchedules = async () => {
-            const response = await axios.get('http://localhost:3000/api/availability');
-            setSchedules(response.data);
-        };
         fetchSchedules();
     }, []);
 
-    const handleSchedule = (availabilityId) => {
-        // Handle scheduling here
+    const handleSchedule = async (availabilityId, trainerId) => {
+        try {
+            console.log(`availabilityId: ${availabilityId}, memberId: ${memberId}, trainerId: ${trainerId}`);
+            const response = await axios.post('http://localhost:3000/api/schedule', { availabilityId, memberId: parseInt(memberId), trainerId: parseInt(trainerId)});
+            if (response.status === 200) {
+                // Refresh the schedules
+                fetchSchedules();
+            }
+        } catch (error) {
+            console.error('Error scheduling:', error);
+        }
     };
 
     return (
         <div className='container mx-auto px-2 sm:px-8'>
-            <MemberNavBar memberId={1} handleLogout={() => {}} />
+            <MemberNavBar memberId={memberId} handleLogout={() => {}} />
             <h1 className='text-2xl my-8  font-semibold'> Please Submit a Schedule</h1>
             <div className='py-1'>
                 <div className='-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto'>
@@ -37,8 +50,11 @@ export default function Schedule() {
                                 </tr>
                             </thead>
                             <tbody>
-                            {schedules.map(schedule => (
-                                <tr key={schedule.availabilityid}>
+                            {schedules.map(schedule => {
+                                console.log(schedule);
+                                return (
+                                
+                                <tr key={schedule.scheduleid}>
                                     <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>{schedule.date}</td>
                                     <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>{schedule.starttime}</td>
                                     <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>{schedule.endtime}</td>
@@ -46,16 +62,17 @@ export default function Schedule() {
                                         {schedule.available ? 'Available' : 'Not Available'}
                                     </td>
                                     <td className='px-5 py-5 border-b border-gray-200 bg-white text-sm'>
-                                        <button 
-                                            className='bg-blue-200 w-54 hover:bg-gray-200 text-black py-2 px-4 rounded '
-                                            onClick={() => handleSchedule(schedule.availabilityid)}
-                                            disabled={!schedule.available}
-                                        >
-                                            Schedule
-                                        </button>
+                                    <button 
+                                        className='bg-blue-200 w-54 hover:bg-gray-200 text-black py-2 px-4 rounded '
+                                        onClick={() => handleSchedule(schedule.availabilityid, schedule.trainerid)}
+                                        disabled={!schedule.available}
+                                    >
+                                        Schedule
+                                    </button>
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                                })}  
                         </tbody>
                         </table>
                     </div>
