@@ -100,3 +100,20 @@ FOREIGN KEY (TrainerID) REFERENCES Trainers(TrainerID);
 ALTER TABLE RoomBooking
 ADD CONSTRAINT fk_admin_roombooking
 FOREIGN KEY (AdminID) REFERENCES AdministrativeStaff(AdminID);
+
+-- I figured I would need to add a PIN col in my Admins --
+ALTER TABLE AdministrativeStaff ADD COLUMN Pin TEXT;
+UPDATE AdministrativeStaff SET Pin = '1234' WHERE AdminID = 1;
+UPDATE AdministrativeStaff SET Pin = '2345' WHERE AdminID = 2;
+UPDATE AdministrativeStaff SET Pin = '3456' WHERE AdminID = 3;
+UPDATE AdministrativeStaff SET Pin = '4567' WHERE AdminID = 4;
+UPDATE AdministrativeStaff SET Pin = '5678' WHERE AdminID = 5;
+
+-- I also would need a unique userName for each Memmber, and a pin too --
+ALTER TABLE Members
+ADD COLUMN username VARCHAR(255) NOT NULL,
+ADD COLUMN pin VARCHAR(255) NOT NULL;
+
+ALTER TABLE Members
+ADD CONSTRAINT unique_username
+UNIQUE (username);
