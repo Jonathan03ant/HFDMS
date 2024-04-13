@@ -31,6 +31,9 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
+/*
+    *ADMIN APIS
+*/
 app.get('/api/admins', async (req, res) => {
     try {
        const result = await pool.query('SELECT AdminID, FullName FROM AdministrativeStaff');
@@ -40,7 +43,7 @@ app.get('/api/admins', async (req, res) => {
        console.error(err);
        res.status(500).json({ error: 'An error occurred while fetching admins' });
     }
-   });
+});
 
 app.post('/api/admins/authenticate', async (req, res) => {
     const { AdminID, Pin } = req.body;
@@ -57,17 +60,27 @@ app.post('/api/admins/authenticate', async (req, res) => {
     }
 });
 
-app.get('/members', async (req, res) => {
+/*
+    *MEMBER APIS
+*/
+app.post('/api/signup', async (req, res) => {
+    console.log('Request body:', req.body);
+    const { fullName, username, pin } = req.body;
     try {
-       const result = await pool.query('SELECT * FROM Trainers');
-       res.json(result.rows);
-       //console.log(result.rows);
-    } catch (err) {
-       console.error(err);
-       res.status(500).json({ error: 'An error occurred while fetching members', details: err.message });
+        const result = await pool.query(
+        'INSERT INTO Members (FullName, username, pin) VALUES ($1, $2, $3)',
+        [fullName, username, pin]
+        );
+        res.status(201).json({ message: 'Member signed up successfully' });
+    } catch (error) {
+        if (error.code === '23505') { // This is the error code for unique_violation in PostgreSQL
+            res.status(400).json({ error: 'Username already exists' });
+        } else {
+            console.error('Error signing up:', error);
+            res.status(500).json({ error: 'An error occurred while signing up' });
+        }
     }
-   });
-
+});
 
 
 app.listen(port, () => {

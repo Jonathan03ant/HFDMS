@@ -9,6 +9,7 @@ export default function MemberSignUpPage() {
         username: '',
         pin: '',
     });
+    const [signupSuccess, setSignupSuccess] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,10 +18,16 @@ export default function MemberSignUpPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/members', formData);
-            console.log(response.data);
-        } catch (err) {
-            console.error(err);
+            const response = await axios.post('http://localhost:3000/api/signup', formData);
+            if (response.status === 201) {
+                setSignupSuccess(true);
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 400 && error.response.data.error === 'Username already exists') {
+                alert('Username already exists, Login instead!');
+            } else {
+                console.error('Error signing up:', error);
+            }
         }
     }
     return (
@@ -40,9 +47,8 @@ export default function MemberSignUpPage() {
                         Sign Up
                     </button>
             </form>
-
+            {signupSuccess && <h1 className='w-72 p-2 h-10' >Success! Your account has been created.</h1>}
             </div>
-
         </>
     )
 }
