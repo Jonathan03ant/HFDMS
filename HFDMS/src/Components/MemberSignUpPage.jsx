@@ -76,7 +76,7 @@ export default function MemberSignUpPage() {
             const date = new Date(dueDate);
             const response = await axios.post('http://localhost:3000/api/submitPayment', { amount, dueDate: date, memberId });
             setPaymentSubmitted(true);  
-            navigate(`/member-${memberId}`);  
+            navigate(`/member/${memberId}`); 
         } catch (error) {
             console.error('Error submitting payment:', error);
         }

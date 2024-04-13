@@ -30,7 +30,7 @@ function App() {
         <Route path="/member" element={<MemberLandingPage />} />
         <Route path="/member-login" element={<MemberLoginPage />} />
         <Route path="/member-signup" element={<MemberSignUpPage />} />
-        <Route path="/member-home" element={<MemberPage />} />
+        <Route path="/member/:memberId" element={<MemberPage />} />
 
       </Routes>
     </Router>
