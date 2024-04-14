@@ -117,3 +117,29 @@ ADD COLUMN pin VARCHAR(255) NOT NULL;
 ALTER TABLE Members
 ADD CONSTRAINT unique_username
 UNIQUE (username);
+
+--Availablity--
+HFDMS=# INSERT INTO Availability (Date, StartTime, EndTime, Available)
+VALUES
+('2023-04-10', '08:00:00', '11:00:00', true),
+('2023-04-10', '11:00:00', '14:00:00', true),
+('2023-04-10', '14:00:00', '17:00:00', true),
+('2023-04-10', '17:00:00', '20:00:00', true),
+('2023-04-10', '20:00:00', '21:00:00', true); -- contonue for 2023-04-11, 2023-04-12, 2023-04-13, 2023-04-14, 2023-04-15
+
+
+--Trainers Avail.--
+UPDATE Trainers
+SET AvailabilityID = 1
+WHERE TrainerID = 1;
+
+UPDATE Trainers
+SET AvailabilityID = 2
+WHERE TrainerID = 2;
+
+-- UPdate Trainers, with pin----
+ALTER TABLE Trainers
+ADD COLUMN Pin VARCHAR(4);
+
+UPDATE Trainers
+SET Pin = '0000';

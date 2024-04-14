@@ -203,6 +203,90 @@ app.get('/api/schedules/:memberId', async (req, res) => {
     }
 });
 
+app.get('/api/bills', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Bills');
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching bills:', error);
+        res.status(500).json({ error: 'An error occurred while fetching bills' });
+    }
+});
+
+app.get('/api/equipment', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Equipment');
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching equipment:', error);
+        res.status(500).json({ error: 'An error occurred while fetching equipment' });
+    }
+});
+
+app.post('/api/equipment', async (req, res) => {
+    console.log(req.body);
+    try {
+        const { name, status, notes } = req.body;
+        const newEquipment = await pool.query(
+            'INSERT INTO Equipment (name, status, notes) VALUES ($1, $2, $3) RETURNING *',
+            [name, status, notes]
+        );
+        res.json(newEquipment.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'An error occurred while adding equipment' });
+    }
+});
+
+app.get('/api/schedules', async (req, res) => {
+    //console.log(req.body)
+    try {
+        const result = await pool.query('SELECT * FROM Schedules');
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching schedules:', error);
+        res.status(500).json({ error: 'An error occurred while fetching schedules' });
+    }
+});
+
+app.post('/api/schedules/:id/confirm', async (req, res) => {
+    const { bookingId, status } = req.body;
+    const { id } = req.params;
+
+    try {
+        await pool.query('UPDATE Schedules SET bookingid = $1, schedulestatus = $2 WHERE scheduleid = $3', [bookingId, status, id]);
+        res.status(200).json({ message: 'Schedule confirmed' });
+    } catch (error) {
+        console.error('Error confirming schedule:', error);
+        res.status(500).json({ error: 'An error occurred while confirming the schedule' });
+    }
+});
+
+app.get('/api/metrics/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query('SELECT hm.* FROM HealthMetrics hm JOIN Members m ON hm.HealthMetricsID = m.HealthMetricsID WHERE m.MemberID = $1', [id]);
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching metrics:', error);
+        res.status(500).json({ error: 'An error occurred while fetching metrics' });
+    }
+});
+
+app.put('/api/metrics/:id', async (req, res) => {
+    const { id } = req.params;
+    const { currentweight, goalweight, height } = req.body;
+
+    try {
+        await pool.query('UPDATE HealthMetrics SET CurrentWeight = $1, GoalWeight = $2, Height = $3 WHERE HealthMetricsID = $4', [currentweight, goalweight, height, id]);
+        res.status(200).json({ message: 'Metrics updated successfully' });
+    } catch (error) {
+        console.error('Error updating metrics:', error);
+        res.status(500).json({ error: 'An error occurred while updating metrics' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
