@@ -14,8 +14,9 @@ import MemberPage from './Components/MemberPage';
 import Schedule from './Components/Pages/Schedule';
 import TrackFitness from './Components/Pages/TrackFitness';
 
-
+import TrainerLandingPage from './Components/TrainerLandingPage';
 import TrainerPage from './Components/TrainerPage'; 
+import AvailabilityForm from './Components/Pages/AvailabilityForm';
 
 
 
@@ -33,7 +34,10 @@ function App() {
 
 
 
-        <Route path="/trainer" element={<TrainerPage />} />
+        <Route path="/trainer" element={<TrainerLandingPage />} />
+        <Route path="/trainer-home" element={<TrainerPage />} />
+        
+        <Route path="/trainer-add-avail" element={<AvailabilityForm />} />
 
 
         <Route path="/member" element={<MemberLandingPage />} />
@@ -43,6 +47,8 @@ function App() {
         <Route path="/member/:memberId" element={<MemberPage />} />
         <Route path="/member/:memberId/schedule" element={<Schedule />} />
         <Route path="/member/:memberId/trackfitness" element={<TrackFitness />} />
+
+        
 
 
 
