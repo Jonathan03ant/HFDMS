@@ -287,6 +287,48 @@ app.put('/api/metrics/:id', async (req, res) => {
     }
 });
 
+app.get('/api/trainers', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM Trainers');
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching trainers:', error);
+        res.status(500).json({ error: 'An error occurred while fetching trainers' });
+    }
+});
+
+app.post('/api/trainers/authenticate', async (req, res) => {
+    const { TrainerID, Pin } = req.body;
+
+    try {
+        const result = await pool.query('SELECT * FROM Trainers WHERE TrainerID = $1 AND Pin = $2', [TrainerID, Pin]);
+        if (result.rows.length > 0) {
+            res.status(200).json({ success: true });
+        } else {
+            res.status(401).json({ success: false });
+        }
+    } catch (error) {
+        console.error('Error authenticating trainer:', error);
+        res.status(500).json({ error: 'An error occurred while authenticating the trainer' });
+    }
+});
+
+app.post('/api/availability', async (req, res) => {
+    const { TrainerID, Date, StartTime, EndTime, Available } = req.body;
+  
+    try {
+      const result = await pool.query(
+        'INSERT INTO availability (TrainerID, Date, StartTime, EndTime, Available) VALUES ($1, $2, $3, $4, $5)',
+        [TrainerID, Date, StartTime, EndTime, Available]
+      );
+  
+      res.status(201).json({ status: 'success', message: 'Availability added' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ status: 'error', message: 'An error occurred while adding availability' });
+    }
+  });
+  
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
